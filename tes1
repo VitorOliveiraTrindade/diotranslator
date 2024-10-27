@@ -1,0 +1,36 @@
+import requests
+from docx import Document
+import os
+
+subscription_key = '2BGCnUddtUnhrIfPbwD3YKn6ZrMgVxgUc5AjAXnyEcnPCsWiecpdJQQJ99AJACHYHv6XJ3w3AAAbACOGAlZo'
+endpoint = 'https://api.cognitive.microsofttranslator.com/'
+location = 'East US 2'
+target_language = 'pt-br'
+
+def translator_document(text, target_language):
+    path = '/translate?api-version=3.0'
+    constructed_url = endpoint + path
+    headers = {
+        'Ocp-Apim-Subscription-Key': subscription_key,
+        'Ocp-Apim-Subscription-Region': location,
+        'Content-type': 'application/json'
+    }
+    body = [{
+        'text': text
+    }]
+    params = {
+        'api-version': '3.0',
+        'from': 'en',
+        'to': target_language
+    }
+    request = requests.post(constructed_url, params=params, headers=headers, json=body)
+    response = request.json()
+    
+    # Check if the response is a list and has the expected structure
+    if isinstance(response, list) and len(response) > 0 and "translations" in response[0] and len(response[0]["translations"]) > 0 and "text" in response[0]["translations"][0]:
+        return response[0]["translations"][0]["text"]
+    else:
+        # Handle cases where the response has unexpected structure
+        print(f"Unexpected response format: {response}")  # Print the response for debugging
+        return "Translation failed"  # Or raise an exception
+
